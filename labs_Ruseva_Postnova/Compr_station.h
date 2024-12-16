@@ -17,6 +17,7 @@ public:
 	void edit();
 	double used_per() const;
 	void up_num_run_ws(int num);
+	int get_id() const;
 	static int get_max_id();
 	std::string get_name() const;
 

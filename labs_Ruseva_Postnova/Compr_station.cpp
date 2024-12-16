@@ -6,12 +6,14 @@ int Compr_station::max_id = 0;
 
 
 void Compr_station::up_num_run_ws(int num) {
-	if (this->num_run_workshops + num > this->num_workshops)
+	if (this->num_run_workshops + num > this->num_workshops) {
+		std::cout << "Addig more workhops than there are" << std::endl;
 		this->num_run_workshops = this->num_workshops;
-
-	else if (this->num_run_workshops + num < 0)
+	}
+	else if (this->num_run_workshops + num < 0) {
+		std::cout << "Adding is impossible less than the number or workshops" << std::endl;
 		this->num_run_workshops = 0;
-
+	}
 	else this->num_run_workshops = this->num_run_workshops + num;
 }
 
@@ -24,6 +26,10 @@ void Compr_station::edit() {
 double Compr_station::used_per() const {
 	double result = (this->num_run_workshops / this->num_workshops) * 100;
 	return result;
+}
+
+int Compr_station::get_id() const{
+	return max_id;
 }
 
 int Compr_station::get_max_id() {

@@ -97,13 +97,13 @@ bool read_data(std::string f_name, std::unordered_map<int, Pipe>& pipes, std::un
 		for (int i(0); i < num_Pp; ++i) {
 			Pipe Pp;
 			file_handler >> Pp;
-			pipes[Pp.get_max_id() - 1] = Pp;
+			pipes[Pp.get_id()] = Pp;
 		}
 
 		for (int i(0); i < num_Cs; ++i) {
 			Compr_station Cs;
 			file_handler >> Cs;
-			compr_stations[Cs.get_max_id() - 1] = Cs;
+			compr_stations[Cs.get_id()] = Cs;
 		}
 
 		file_handler.close();
@@ -149,6 +149,8 @@ void change_in_rep(bool in_rep, std::unordered_set<int>& ids, std::unordered_map
 
 void change_run_ws(int num, std::unordered_set<int>& ids, std::unordered_map<int, Compr_station>& compr_stataions) {
 	for (int i : ids) {
+
+	
 		compr_stataions[i].up_num_run_ws(num);
 	}
 }

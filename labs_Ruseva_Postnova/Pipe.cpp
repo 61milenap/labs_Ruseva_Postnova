@@ -14,6 +14,9 @@ void Pipe::edit() {
 	this->in_repairing = pipe_in_rep_input();
 }
 
+int Pipe::get_id() const {
+	return max_id;
+}
 
 int Pipe::get_max_id() const {
 	max_id++;
@@ -63,6 +66,7 @@ std::ostream& operator << (std::ostream& out, const Pipe& Pp) {
 
 std::ifstream& operator >> (std::ifstream& fin, Pipe& Pp) {
 	std::string name;
+
 	fin >> Pp.max_id;
 	fin.ignore();
 	if (std::getline(fin, name, '\n')) Pp.name = name;
