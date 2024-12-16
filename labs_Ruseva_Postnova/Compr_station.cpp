@@ -5,17 +5,17 @@
 int Compr_station::max_id = 0;
 
 
-void Compr_station::up_num_run_ws(int num) {
+void Compr_station::up_num_run_ws(int num, int i) {
 	if (this->num_run_workshops + num > this->num_workshops) {
-		std::cout << "Addig more workhops than there are id" << get_id() << std::endl;
+		std::cout << "Addig more workhops than there are id" << i << std::endl;
 		this->num_run_workshops = this->num_workshops;
 	}
 	else if (this->num_run_workshops + num < 0) {
-		std::cout << "Adding is impossible less than the number or workshops id" << get_id() << std::endl;
+		std::cout << "Adding is impossible less than the number or workshops id" << i << std::endl;
 		this->num_run_workshops = 0;
 	}
 	else {
-		std::cout << "Adding run workshops id" << get_id() << std::endl;
+		std::cout << "Adding run workshops id" << i << std::endl;
 		this->num_run_workshops = this->num_run_workshops + num;
 	}
 }
@@ -48,8 +48,6 @@ std::string Compr_station::get_name() const {
 std::istream& operator >> (std::istream& in, Compr_station& Cs) {
 	std::cout << "Input the Name of CS: ";
 	INPUT_LINE(in, Cs.name);
-	/*std::cin.ignore(10000, '\n');
-	std::getline(std::cin, Cs.name);*/
 	std::cout << "Input number of workshops: ";
 	Cs.num_workshops = get_num_value(0, std::numeric_limits<int>::max());
 	std::cout << "Input number of running workshops: ";
@@ -68,7 +66,6 @@ std::ostream& operator << (std::ostream& out, const Compr_station& Cs) {
 	std::cout << "Number of running workshops on compressor station: " << Cs.num_run_workshops << std::endl;
 	std::cout << "Efficiency compressor station: " << Cs.efficiency << std::endl;
 	std::cout << "----------------------------------------------------------------" << std::endl << std::endl;
-
 	return out;
 }
 

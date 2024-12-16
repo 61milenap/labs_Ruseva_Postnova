@@ -149,9 +149,7 @@ static void change_in_rep(bool in_rep, std::unordered_set<int>& ids, std::unorde
 
 void change_run_ws(int num, std::unordered_set<int>& ids, std::unordered_map<int, Compr_station>& compr_stataions) {
 	for (int i : ids) {
-
-	
-		compr_stataions[i].up_num_run_ws(num);
+		compr_stataions[i].up_num_run_ws(num, i);
 	}
 }
 
@@ -216,7 +214,6 @@ void filter_pipes(std::unordered_map<int, Pipe>& pipes) {
 			if (choice == 2)
 				ids = get_new_ids(ids);
 
-
 			choice = del_or_edit();
 
 			if (choice == 1) del_objects(ids, pipes);
@@ -233,7 +230,7 @@ void filter_pipes(std::unordered_map<int, Pipe>& pipes) {
 
 void filter_compr_stations(std::unordered_map<int, Compr_station>& compr_stations) {
 	std::cout << "1.Filter by name" << std::endl
-		<< "2.Filter by \"percent of used worcstataoins >= \"" << std::endl;
+		<< "2.Filter by \"percent of used worck stations >= \"" << std::endl;
 	int choice = get_num_value(1, 5);
 	std::unordered_set<int> ids;
 
