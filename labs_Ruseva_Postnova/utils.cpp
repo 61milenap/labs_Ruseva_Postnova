@@ -97,13 +97,13 @@ bool read_data(std::string f_name, std::unordered_map<int, Pipe>& pipes, std::un
 		for (int i(0); i < num_Pp; ++i) {
 			Pipe Pp;
 			file_handler >> Pp;
-			pipes[Pp.get_max_id()] = Pp;
+			pipes[Pp.get_max_id() - 1] = Pp;
 		}
 
 		for (int i(0); i < num_Cs; ++i) {
 			Compr_station Cs;
 			file_handler >> Cs;
-			compr_stations[Cs.get_max_id()] = Cs;
+			compr_stations[Cs.get_max_id() - 1] = Cs;
 		}
 
 		file_handler.close();
@@ -184,6 +184,7 @@ void filter_pipes(std::unordered_map<int, Pipe>& pipes) {
 		std::cin.ignore(10000, '\n');
 		std::getline(std::cin, name);
 
+
 		ids = find_pipes_ids(pipes, check_pipe_name, name);
 	}
 
@@ -231,8 +232,8 @@ void filter_pipes(std::unordered_map<int, Pipe>& pipes) {
 void filter_compr_stations(std::unordered_map<int, Compr_station>& compr_stations) {
 	std::cout << "1.Filter by name" << std::endl
 		<< "2.Filter by \"percent of unused worcstataoins >= \"" << std::endl
-		<< "3.Filter by \"percent of unused worcstataoins <= \"" << std::endl
-		<< "4.Filter by \"percent of unused worcstataoins = \"" << std::endl;
+		/* << "3.Filter by \"percent of unused worcstataoins <= \"" << std::endl
+		<< "4.Filter by \"percent of unused worcstataoins = \"" << std::endl*/;
 	int choice = get_num_value(1, 5);
 	std::unordered_set<int> ids;
 
@@ -242,7 +243,7 @@ void filter_compr_stations(std::unordered_map<int, Compr_station>& compr_station
 		std::cout << "Input name of CS: ";
 		std::cin.ignore(10000, '\n');
 		std::getline(std::cin, name);
-
+		INPUT_LINE(std::cin, name);
 		ids = find_compr_st_ids(compr_stations, check_compr_st_name, name);
 	}
 
@@ -253,7 +254,7 @@ void filter_compr_stations(std::unordered_map<int, Compr_station>& compr_station
 		ids = find_compr_st_ids(compr_stations, check_unused_per_m, percent);
 	}
 
-	if (choice == 3) {
+	/*if (choice == 3) {
 
 		std::cout << "Input percent: ";
 		double percent = get_num_value(0.0, 100.0);
@@ -265,7 +266,7 @@ void filter_compr_stations(std::unordered_map<int, Compr_station>& compr_station
 		std::cout << "Input percent: ";
 		double percent = get_num_value(0.0, 100.0);
 		ids = find_compr_st_ids(compr_stations, check_unused_per_e, percent);
-	}
+	}*/
 
 
 	if (show(ids, compr_stations)) {
@@ -314,15 +315,15 @@ bool check_compr_st_name(const Compr_station& Cs, std::string name) {
 
 
 bool check_unused_per_m(const Compr_station& Cs, double percent) {
-	return Cs.unused_per() >= percent;
+	return Cs.used_per() >= percent;
 }
 
 
 bool check_unused_per_l(const Compr_station& Cs, double percent) {
-	return Cs.unused_per() <= percent;
+	return Cs.used_per() <= percent;
 }
 
 
 bool check_unused_per_e(const Compr_station& Cs, double percent) {
-	return Cs.unused_per() == percent;
+	return Cs.used_per() == percent;
 }

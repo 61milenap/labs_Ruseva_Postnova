@@ -4,8 +4,14 @@
 #include "utils.h"
 #include "Pipe.h"
 #include "Compr_station.h"
+#include <chrono>
+#include <format>
+#include <iostream>
+#include <vector>
+#include <fstream>
 
-void do_command(int choice, std::unordered_map<int, Pipe>& pipes, std::unordered_map<int, Compr_station>& compr_stations);
+using namespace std;
+using namespace chrono;
 
 
 void show_commands();
@@ -13,6 +19,11 @@ void show_commands();
 
 int main()
 {
+	redirect_output_wrapper cerr_out(cerr);
+	string time = std::format("{:%d_%m_%Y %H_%M_%OS}", system_clock::now());
+	ofstream logfile("log_" + time + ".txt");
+	if (logfile)
+		cerr_out.redirect(logfile);
 	std::unordered_map<int, Pipe> pipes;
 	std::unordered_map<int, Compr_station> compr_stations;
 	int choice;
@@ -61,6 +72,7 @@ int main()
 				int id;
 				std::cout << "Input the CS id: ";
 				id = get_num_value(0, std::numeric_limits<int>::max());
+				//INPUT_LINE(in, id);
 				if (del_compr_station(id, compr_stations)) std::cout << "CS was deleted\n";
 				else std::cout << "There is no CS with that id\n";
 			}
@@ -103,7 +115,7 @@ int main()
 		{
 			std::string name;
 			std::cout << "Input name of file for saving: ";
-			std::cin >> name;
+			INPUT_LINE(std::cin, name);
 			if (save_data(name, pipes, compr_stations)) std::cout << "Data was saved\n";
 			else std::cout << "Data was not saved\n";
 			break;
@@ -112,7 +124,7 @@ int main()
 		{
 			std::string name;
 			std::cout << "Input name of file for loading: ";
-			std::cin >> name;
+			INPUT_LINE(std::cin, name);
 			if (read_data(name, pipes, compr_stations)) std::cout << "Data was loaded\n";
 			else std::cout << "There is no file with that name\n";
 			break;

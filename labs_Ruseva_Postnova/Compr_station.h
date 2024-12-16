@@ -15,9 +15,9 @@ private:
 
 public:
 	void edit();
-	double unused_per() const;
+	double used_per() const;
 	void up_num_run_ws(int num);
-	int get_max_id() const;
+	static int get_max_id();
 	std::string get_name() const;
 
 
@@ -27,4 +27,3 @@ public:
 	friend std::ofstream& operator << (std::ofstream& fout, const Compr_station& Cs);
 
 };
-

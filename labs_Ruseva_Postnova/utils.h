@@ -9,11 +9,37 @@
 #include "Compr_station.h"
 #include <iostream>
 
+#define INPUT_LINE(in, str) getline(in>>std::ws, str); \
+						std::cerr << str << std::endl
+//#define PRINT_PARAM(out, x) out<< #x << "=" << x << std::endl
+class redirect_output_wrapper
+{
+	std::ostream& stream;
+	std::streambuf* const old_buf;
+public:
+	redirect_output_wrapper(std::ostream& src)
+		:old_buf(src.rdbuf()), stream(src)
+	{
+	}
+	~redirect_output_wrapper() {
+		stream.rdbuf(old_buf);
+	}
+	void redirect(std::ostream& dest)
+	{
+		stream.rdbuf(dest.rdbuf());
+	}
+};
+
+
 template <typename T>
 T get_num_value(T least, T great) {
 	T val = 0;
 	while (true) {
-		if (std::cin >> val && (std::cin.peek() == EOF || std::cin.peek() == '\n') && (val >= least) && (val < great)) return val;
+		if (std::cin >> val && (std::cin.peek() == EOF || std::cin.peek() == '\n') && (val >= least) && (val < great))
+		{
+			std::cerr << val << std::endl;
+			return val;
+		}
 		else {
 			std::cin.clear();
 			std::cin.ignore(10000, '\n');
@@ -58,7 +84,7 @@ bool show(std::unordered_set<int>& ids, std::unordered_map<int, T>& objects) {
 
 template <typename T>
 using pipe_filter = bool (*)(const Pipe& Cs, T params);
-
+ 
 
 template <typename T>
 std::unordered_set<int> find_pipes_ids(std::unordered_map<int, Pipe>& pipes, pipe_filter<T> filter, T params) {

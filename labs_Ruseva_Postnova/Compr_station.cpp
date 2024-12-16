@@ -21,13 +21,12 @@ void Compr_station::edit() {
 	this->num_run_workshops = get_num_value(0, this->num_workshops + 1);
 }
 
-double Compr_station::unused_per() const {
-	double result = (1.0 - this->num_run_workshops / this->num_workshops) * 100;
+double Compr_station::used_per() const {
+	double result = (this->num_run_workshops / this->num_workshops) * 100;
 	return result;
 }
 
-
-int Compr_station::get_max_id() const {
+int Compr_station::get_max_id() {
 	max_id++;
 	return max_id;
 }
@@ -39,10 +38,9 @@ std::string Compr_station::get_name() const {
 
 std::istream& operator >> (std::istream& in, Compr_station& Cs) {
 	std::cout << "Input the Name of CS: ";
-
-	std::cin.ignore(10000, '\n');
-	std::getline(std::cin, Cs.name);
-
+	INPUT_LINE(in, Cs.name);
+	/*std::cin.ignore(10000, '\n');
+	std::getline(std::cin, Cs.name);*/
 	std::cout << "Input number of workshops: ";
 	Cs.num_workshops = get_num_value(0, std::numeric_limits<int>::max());
 	std::cout << "Input number of running workshops: ";

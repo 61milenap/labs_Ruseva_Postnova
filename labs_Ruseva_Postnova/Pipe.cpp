@@ -33,8 +33,9 @@ bool Pipe::get_in_rep() const {
 
 std::istream& operator >> (std::istream& in, Pipe& Pp) {
 	std::cout << "Input the Name of Pipe: ";
-	std::cin.ignore(10000, '\n');
-	std::getline(std::cin, Pp.name);
+	INPUT_LINE(in, Pp.name);
+	/*std::cin.ignore(10000, '\n');
+	std::getline(std::cin, Pp.name);*/
 	std::cout << "Input the length of Pipe: ";
 	Pp.len = get_num_value(0.0, std::numeric_limits<double>::max());
 	std::cout << "Input the diameter of Pipe: ";
@@ -77,4 +78,3 @@ std::ofstream& operator << (std::ofstream& fout, const Pipe& Pp) {
 		<< Pp.in_repairing << std::endl;
 	return fout;
 }
-
