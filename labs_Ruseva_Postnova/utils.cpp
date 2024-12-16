@@ -140,7 +140,7 @@ std::unordered_set<int> get_new_ids(std::unordered_set<int> ids) {
 }
 
 
-void change_in_rep(bool in_rep, std::unordered_set<int>& ids, std::unordered_map<int, Pipe>& pipes) {
+static void change_in_rep(bool in_rep, std::unordered_set<int>& ids, std::unordered_map<int, Pipe>& pipes) {
 	for (int i : ids) {
 		pipes[i].set_in_rep(in_rep);
 	}
@@ -233,9 +233,7 @@ void filter_pipes(std::unordered_map<int, Pipe>& pipes) {
 
 void filter_compr_stations(std::unordered_map<int, Compr_station>& compr_stations) {
 	std::cout << "1.Filter by name" << std::endl
-		<< "2.Filter by \"percent of unused worcstataoins >= \"" << std::endl
-		/* << "3.Filter by \"percent of unused worcstataoins <= \"" << std::endl
-		<< "4.Filter by \"percent of unused worcstataoins = \"" << std::endl*/;
+		<< "2.Filter by \"percent of used worcstataoins >= \"" << std::endl;
 	int choice = get_num_value(1, 5);
 	std::unordered_set<int> ids;
 
@@ -253,23 +251,8 @@ void filter_compr_stations(std::unordered_map<int, Compr_station>& compr_station
 
 		std::cout << "Input percent: ";
 		double percent = get_num_value(0.0, 100.0);
-		ids = find_compr_st_ids(compr_stations, check_unused_per_m, percent);
+		ids = find_compr_st_ids(compr_stations, check_used_per, percent);
 	}
-
-	/*if (choice == 3) {
-
-		std::cout << "Input percent: ";
-		double percent = get_num_value(0.0, 100.0);
-		ids = find_compr_st_ids(compr_stations, check_unused_per_l, percent);
-	}
-
-	if (choice == 4) {
-
-		std::cout << "Input percent: ";
-		double percent = get_num_value(0.0, 100.0);
-		ids = find_compr_st_ids(compr_stations, check_unused_per_e, percent);
-	}*/
-
 
 	if (show(ids, compr_stations)) {
 
@@ -316,16 +299,6 @@ bool check_compr_st_name(const Compr_station& Cs, std::string name) {
 }
 
 
-bool check_unused_per_m(const Compr_station& Cs, double percent) {
+bool check_used_per(const Compr_station& Cs, double percent) {
 	return Cs.used_per() >= percent;
-}
-
-
-bool check_unused_per_l(const Compr_station& Cs, double percent) {
-	return Cs.used_per() <= percent;
-}
-
-
-bool check_unused_per_e(const Compr_station& Cs, double percent) {
-	return Cs.used_per() == percent;
 }

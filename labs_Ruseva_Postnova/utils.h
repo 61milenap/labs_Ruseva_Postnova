@@ -156,8 +156,4 @@ bool check_pipe_in_rep(const Pipe& Pp, bool in_rep);
 
 bool check_compr_st_name(const Compr_station& Cs, std::string name);
 
-bool check_unused_per_m(const Compr_station& Cs, double percent);
-
-bool check_unused_per_l(const Compr_station& Cs, double percent);
-
-bool check_unused_per_e(const Compr_station& Cs, double percent);
+bool check_used_per(const Compr_station& Cs, double percent);
