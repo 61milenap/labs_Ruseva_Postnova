@@ -20,6 +20,8 @@ public:
 	int get_max_id() const;
 	bool get_in_rep() const;
 	std::string get_name() const;
+	double get_diam() const;
+	double get_len() const;
 
 
 	friend std::istream& operator >> (std::istream& in, Pipe& Pp);

@@ -1,282 +1,170 @@
 #include "utils.h"
+#include <vector>
+#include <list>
+#include <stack>
+#include <queue>
+#include <tuple>
+#include <limits>
+
+bool bfs(const std::vector<std::vector<double>>& r_graph, int s, int t, std::vector<int>& parent) {
+	const int V = r_graph.size();
+	std::vector<int> visited(V, 0);
+	std::queue<int> q;
+
+	q.push(s);
+	visited[s] = true;
+	parent[s] = -1;
+
+	while (!q.empty()) {
+		int u = q.front();
+		q.pop();
+
+		for (int v = 0; v < V; v++) {
+			if (!visited[v] && r_graph[u][v] > 0) {
+				parent[v] = u;
+
+				if (v == t) {
+					return true;
+				}
+
+				visited[v] = true;
+				q.push(v);
+			}
+		}
+	}
+
+	return false;
+}
+
+double calculate_flow(double d, double l) {
+	// Формула для вычисления потока: sqrt(d^5 / l)
+	return sqrt(pow(d, 5) / l);
+}
+
+double ford_fulkerson(std::vector<std::vector<double>>& graph, int s, int t) {
+	int u, v;
+	const int V = graph.size();
+	std::vector<std::vector<double>> r_graph = graph;
+	std::vector<int> parent(V, -1);
+	double max_flow = 0.0;
+
+	while (bfs(r_graph, s, t, parent)) {
+		double path_flow = std::numeric_limits<double>::max();
+
+		// Вычисляем минимальное значение потока на пути с использованием формулы
+		for (v = t; v != s; v = parent[v]) {
+			u = parent[v];
+
+			// Здесь d — это остаточная пропускная способность, а l — расстояние
+			double d = r_graph[u][v];
+			double l = 1.0; // Предполагаем, что расстояние между узлами равно 1 (или задаётся отдельно)
+
+			// Вычисляем поток через ребро
+			double edge_flow = calculate_flow(d, l);
+			path_flow = std::min(path_flow, edge_flow);
+		}
+
+		// Обновляем остаточные пропускные способности
+		for (v = t; v != s; v = parent[v]) {
+			u = parent[v];
+			r_graph[u][v] -= path_flow;
+			r_graph[v][u] += path_flow;
+		}
+
+		// Увеличиваем общий поток
+		max_flow += path_flow;
+	}
+
+	return max_flow;
+}
+
+std::stack<int> topoligical_sort(std::unordered_map<int, std::unordered_set<int>>& graph)
+{
+	std::unordered_set<int> visited;
+	std::stack<int> Stack;
+	std::unordered_set<int> gray;
+
+	for (auto& [v, neighbours] : graph) {
+		if (visited.find(v) == visited.end()) {
+			gray.clear();
+			topological_sort_util(v, visited, Stack, graph, gray);
+
+			if (Stack.empty())
+				return Stack;
+		}
+	}
+	return Stack;
+}
+
+void topological_sort_util(int v, std::unordered_set<int>& visited,
+	std::stack<int>& Stack,
+	std::unordered_map<int, std::unordered_set<int>>& graph,
+	std::unordered_set<int> gray)
+{
+	visited.insert(v);
+	gray.insert(v);
+
+
+	for (const int& adj : graph[v])
+	{
+		if (visited.find(adj) == visited.end())
+			topological_sort_util(adj, visited, Stack, graph, gray);
+
+		if (Stack.empty())
+			return;
+
+		if (gray.contains(adj)) {
+			while (!Stack.empty())
+				Stack.pop();
+			return;
+		}
+	}
+
+	Stack.push(v);
+}
+
+std::vector<double> dijkstra(std::vector<std::vector<double>> graph, int src) {
+
+	std::unordered_set<int> spt_set;
+	double Inf = std::numeric_limits<double>::max();
+	std::vector<double> dist(graph.size(), Inf);
+	dist[src] = 0;
+
+	for (int count(0); count < (graph.size() - 1); ++count) {
+
+		int u = min_dist_node(spt_set, dist);
+
+		spt_set.insert(u);
+
+
+		for (int v(0); v < graph.size(); ++v) {
+			if (!spt_set.contains(v) && graph[u][v] != 0 && dist[u] != Inf)
+				dist[v] = std::min(dist[v], dist[u] + graph[u][v]);
+		}
+	}
+
+	return dist;
+}
+
+int min_dist_node(const std::unordered_set<int>& spt_set, const std::vector<double>& dist) {
+
+	double least = std::numeric_limits<double>::max();
+	int idx = 0;
+
+	for (int i(0); i < dist.size(); ++i) {
+		if (dist[i] < least && !spt_set.contains(i)) {
+			least = dist[i];
+			idx = i;
+		}
+	}
+
+	return idx;
+}
 
 /////////////////////////////////////////single objects/////////////////////////////////////////
 bool pipe_in_rep_input() {
 	std::cout << "1.Pipe is in repearing 2.Pipe is working" << std::endl;
 	return get_num_value(1, 3) == 1;
-}
-
-
-bool del_pipe(int id, std::unordered_map<int, Pipe>& pipes) {
-	if (pipes.find(id) != pipes.end()) {
-		pipes.erase(id);
-		return true;
-	}
-
-	else {
-		return false;
-	}
-}
-
-
-bool del_compr_station(int id, std::unordered_map<int, Compr_station>& compr_stations) {
-
-	if (compr_stations.find(id) != compr_stations.end()) {
-		compr_stations.erase(id);
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-
-
-bool  edit_pipe(int id, std::unordered_map<int, Pipe>& pipes) {
-
-	if (pipes.find(id) != pipes.end()) {
-		pipes[id].edit();
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-
-
-bool edit_compr_station(int id, std::unordered_map<int, Compr_station>& compr_stations) {
-
-	if (compr_stations.find(id) != compr_stations.end()) {
-		compr_stations[id].edit();
-		return true;
-	}
-	return false;
-}
-
-
-/////////////////////////////////////////working with files/////////////////////////////////////////
-bool save_data(std::string f_name, const std::unordered_map<int, Pipe>& pipes, const std::unordered_map<int, Compr_station>& compr_stations) {
-	std::ofstream file;
-	file.open(f_name + ".txt");
-	if (file.is_open()) {
-		file << pipes.size() << ' ' << compr_stations.size() << std::endl;
-
-		for (const auto& Pp : pipes) {
-			file << Pp.first << std::endl;
-			file << Pp.second;
-
-		}
-
-		for (const auto& Cs : compr_stations) {
-			file << Cs.first << std::endl;
-			file << Cs.second;
-		}
-		file.close();
-		return true;
-	}
-	return false;
-}
-
-
-bool read_data(std::string f_name, std::unordered_map<int, Pipe>& pipes, std::unordered_map<int, Compr_station>& compr_stations) {
-
-
-	std::ifstream file_handler;
-	file_handler.open(f_name + ".txt");
-	std::string name;
-
-	if (file_handler.is_open()) {
-
-		pipes.clear();
-		compr_stations.clear();
-
-		int num_Pp;
-		int num_Cs;
-		file_handler >> num_Pp >> num_Cs;
-
-
-		for (int i(0); i < num_Pp; ++i) {
-			Pipe Pp;
-			file_handler >> Pp;
-			pipes[Pp.get_id()] = Pp;
-		}
-
-		for (int i(0); i < num_Cs; ++i) {
-			Compr_station Cs;
-			file_handler >> Cs;
-			compr_stations[Cs.get_id()] = Cs;
-		}
-
-		file_handler.close();
-		return true;
-
-	}
-
-	else
-	{
-		return false;
-	}
-}
-
-/////////////////////////////////////////working with some objects/////////////////////////////////////////
-std::unordered_set<int> get_new_ids(std::unordered_set<int> ids) {
-	std::unordered_set<int> new_ids;
-	int id;
-	while (true) {
-		std::cout << "Input -1 to close." << std::endl << "Input selected id: ";
-		id = get_num_value(-1, std::numeric_limits<int>::max());
-
-		if (id == -1) {
-			break;
-		}
-
-		else if (ids.find(id) != ids.end()) {
-			new_ids.insert(id);
-		}
-		else {
-			std::cout << "There is no object with that id" << std::endl;
-		}
-	}
-	return new_ids;
-}
-
-
-static void change_in_rep(bool in_rep, std::unordered_set<int>& ids, std::unordered_map<int, Pipe>& pipes) {
-	for (int i : ids) {
-		pipes[i].set_in_rep(in_rep);
-	}
-}
-
-
-void change_run_ws(int num, std::unordered_set<int>& ids, std::unordered_map<int, Compr_station>& compr_stataions) {
-	for (int i : ids) {
-		compr_stataions[i].up_num_run_ws(num, i);
-	}
-}
-
-
-/////////////////////////////////////////choice/////////////////////////////////////////
-int choose() {
-	std::cout << "1.Choose all objects" << std::endl;
-	std::cout << "2.Choose some objects" << std::endl;
-	return get_num_value(1, 3);
-}
-
-
-int del_or_edit() {
-	std::cout << "1.Delete objects" << std::endl;
-	std::cout << "2.Edit objects" << std::endl;
-	return get_num_value(1, 3);
-}
-
-
-/////////////////////////////////////////batch edditing/////////////////////////////////////////
-void filter_pipes(std::unordered_map<int, Pipe>& pipes) {
-	std::cout << "1.Filter by name" << std::endl
-		<< "2.Filter by \"In repearing\"" << std::endl
-		<< "3.Filter by \"Working\"" << std::endl;
-	int choice = get_num_value(1, 4);
-	std::unordered_set<int> ids;
-
-	if (choice == 1) {
-
-		std::string name;
-		std::cout << "Input name of pipe: ";
-		std::cin.ignore(10000, '\n');
-		std::getline(std::cin, name);
-
-
-		ids = find_pipes_ids(pipes, check_pipe_name, name);
-	}
-
-	if (choice == 2) {
-
-		ids = find_pipes_ids(pipes, check_pipe_in_rep, true);
-	}
-
-	if (choice == 3) {
-
-		ids = find_pipes_ids(pipes, check_pipe_in_rep, false);
-	}
-
-	if (show(ids, pipes)) {
-
-		std::cout << "1.close" << std::endl << "2.filter pipes" << std::endl;
-		choice = get_num_value(1, 3);
-
-		if (choice == 1) {
-			return;
-		}
-
-		if (choice == 2) {
-
-			choice = choose();
-
-			if (choice == 2)
-				ids = get_new_ids(ids);
-
-			choice = del_or_edit();
-
-			if (choice == 1) del_objects(ids, pipes);
-			if (choice == 2) {
-				bool in_rep;
-				std::cout << "Choose status: 1.In repairing, 2.Working" << std::endl;
-				in_rep = pipe_in_rep_input();
-				change_in_rep(in_rep, ids, pipes);
-			}
-		}
-	}
-}
-
-
-void filter_compr_stations(std::unordered_map<int, Compr_station>& compr_stations) {
-	std::cout << "1.Filter by name" << std::endl
-		<< "2.Filter by \"percent of used worck stations >= \"" << std::endl;
-	int choice = get_num_value(1, 5);
-	std::unordered_set<int> ids;
-
-	if (choice == 1) {
-
-		std::string name;
-		std::cout << "Input name of CS: ";
-		std::cin.ignore(10000, '\n');
-		std::getline(std::cin, name);
-		INPUT_LINE(std::cin, name);
-		ids = find_compr_st_ids(compr_stations, check_compr_st_name, name);
-	}
-
-	if (choice == 2) {
-
-		std::cout << "Input percent: ";
-		double percent = get_num_value(0.0, 100.0);
-		ids = find_compr_st_ids(compr_stations, check_used_per, percent);
-	}
-
-	if (show(ids, compr_stations)) {
-
-		std::cout << "1.close" << std::endl << "2.filter CS" << std::endl;
-		choice = get_num_value(1, 3);
-
-		if (choice == 1) {
-			return;
-		}
-
-		if (choice == 2) {
-
-			choice = choose();
-
-			if (choice == 2)
-				ids = get_new_ids(ids);
-
-			choice = del_or_edit();
-
-			if (choice == 1) del_objects(ids, compr_stations);
-			if (choice == 2) {
-				std::cout << "Input number of workshops to add: ";
-				int num = get_num_value(-std::numeric_limits<int>::max(), std::numeric_limits<int>::max());
-				change_run_ws(num, ids, compr_stations);
-			}
-		}
-	}
 }
 
 

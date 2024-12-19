@@ -19,6 +19,8 @@ void show_commands();
 
 int main()
 {
+	Network network;
+	network.from_file("data");
 	redirect_output_wrapper cerr_out(cerr);
 	string time = std::format("{:%d_%m_%Y %H_%M_%OS}", system_clock::now());
 	ofstream logfile("log_" + time + ".txt");
@@ -31,102 +33,121 @@ int main()
 	while (true) {
 		show_commands();
 		std::cout << "\nEnter your choice: ";
-		choice = get_num_value(0, 12);
+		choice = get_num_value(0, 16);
 		switch (choice) {
 		case 1:
 		{
-			Pipe Pp;
-			std::cin >> Pp;
-			pipes[Pp.get_max_id()] = Pp;
+			network.add_new_pipe();
 			break;
 		}
 		case 2:
 		{
-			Compr_station Cs;
-			std::cin >> Cs;
-			compr_stations[Cs.get_max_id()] = Cs;
+			network.add_new_cs();
 			break;
 		}
 		case 3:
 		{
-			std::cout << "Pipes:\n";
-			show(pipes);
-			std::cout << "Compresor stations:\n";
-			show(compr_stations);
+			network.add_new_edge();
 			break;
 		}
 		case 4:
 		{
-			if (show(pipes)) {
-				int id;
-				std::cout << "Select the pipe id: ";
-				id = get_num_value(0, std::numeric_limits<int>::max());
-				if (del_pipe(id, pipes)) std::cout << "Pipe was deleted\n";
-				else std::cout << "There is no pipe with that id\n";
-			}
+			std::cout << "Pipes:" << std::endl;
+			network.show_pipes();
+			std::cout << "Compresor stations:" << std::endl;
+			network.show_compr_stations();
+			std::cout << "Edges:" << std::endl;
+			network.show_edges();
 			break;
 		}
 		case 5:
 		{
-			if (show(compr_stations)) {
+			if (network.show_pipes()) {
 				int id;
-				std::cout << "Input the CS id: ";
+				std::cout << "Select pipe id: ";
 				id = get_num_value(0, std::numeric_limits<int>::max());
-				//INPUT_LINE(in, id);
-				if (del_compr_station(id, compr_stations)) std::cout << "CS was deleted\n";
-				else std::cout << "There is no CS with that id\n";
+				if (network.del_pipe(id)) std::cout << "Pipe was deleted" << std::endl;
+				else std::cout << "There is no pipe with that id" << std::endl;
 			}
 			break;
 		}
 		case 6:
 		{
-			if (show(pipes)) {
+			if (network.show_compr_stations()) {
 				int id;
-				std::cout << "Input pipe id: \n";
+				std::cout << "Input CS id: ";
 				id = get_num_value(0, std::numeric_limits<int>::max());
-				if (edit_pipe(id, pipes)) std::cout << "Pipe was edited\n";
-				else std::cout << "There is no pipe with that id\n";
+				if (network.del_compr_station(id)) std::cout << "CS was deleted" << std::endl;
 			}
 			break;
 		}
 		case 7:
 		{
-			if (show(compr_stations)) {
+			if (network.show_pipes()) {
 				int id;
-				std::cout << "Input CS id: \n";
-				id = get_num_value(0, std::numeric_limits<int>::max());
-				edit_compr_station(id, compr_stations);
+				std::cout << "Input pipe id: " << std::endl;
+				id = get_num_value(0, std::numeric_limits<int>::max());;
+
+				if (network.edit_pipe(id)) std::cout << "Pipe was edited" << std::endl;
+				else std::cout << "There is no pipe with that id" << std::endl;
 			}
 			break;
 		}
 		case 8:
 		{
-			if (pipes.size() != 0) filter_pipes(pipes);
-			else std::cout << "There are no Pipes\n";
+			if (network.show_compr_stations()) {
+				int id;
+				std::cout << "Input CS id: " << std::endl;
+				id = get_num_value(0, std::numeric_limits<int>::max());
+
+				if (network.edit_compr_station(id)) std::cout << "CS was edited" << std::endl;
+				else std::cout << "There is no CS with that id" << std::endl;
+			}
 			break;
 		}
 		case 9:
 		{
-			if (compr_stations.size() != 0) filter_compr_stations(compr_stations);
-			else std::cout << "There are no CS\n";
+			if (network.get_pipes_size() != 0) network.filter_pipes();
+			else std::cout << "There are no Pipes" << std::endl;
 			break;
 		}
 		case 10:
 		{
-			std::string name;
-			std::cout << "Input name of file for saving: ";
-			INPUT_LINE(std::cin, name);
-			if (save_data(name, pipes, compr_stations)) std::cout << "Data was saved\n";
-			else std::cout << "Data was not saved\n";
+			if (network.get_compr_stations_size() != 0)	network.filter_compr_stations();
+			else std::cout << "There are no CS" << std::endl;
 			break;
 		}
 		case 11:
 		{
+			network.top_sort();
+			break;
+		}
+		case 12:
+		{
+			network.shortest_path();
+			break;
+		}
+		case 13:
+		{
+			network.get_max_flow();
+			break;
+		}
+		case 14:
+		{
+			std::string name;
+			std::cout << "Input name of file for saving: ";
+			std::cin >> name;
+			if (network.to_file(name)) std::cout << "Data was saved" << std::endl;
+			else std::cout << "Data was not saved" << std::endl;
+			break;
+		}
+		case 15:
+		{
 			std::string name;
 			std::cout << "Input name of file for loading: ";
-			INPUT_LINE(std::cin, name);
-			if (read_data(name, pipes, compr_stations)) std::cout << "Data was loaded\n";
-			else std::cout << "There is no file with that name\n";
+			std::cin >> name;
+			if (network.from_file(name)) std::cout << "Data was loaded" << std::endl;
+			else std::cout << "There is no file with that name" << std::endl;
 			break;
 		}
 		case 0:
@@ -144,16 +165,20 @@ int main()
 }
 
 void show_commands() {
-	std::cout << "1. Add a pipe\n";
-	std::cout << "2. Add a CS\n";
-	std::cout << "3. View all objects\n";
-	std::cout << "4. Delete single pipe\n";
-	std::cout << "5. Delete single CS\n";
-	std::cout << "6. Edit single pipe\n";
-	std::cout << "7. Edit single CS\n";
-	std::cout << "8. Filter pipes\n";
-	std::cout << "9. Filter CS\n";
-	std::cout << "10. Save\n";
-	std::cout << "11. Load\n";
-	std::cout << "0. Exit\n";
+	std::cout << "1.Add a pipe" << std::endl
+		<< "2.Add a CS" << std::endl
+		<< "3.Add a edge" << std::endl
+		<< "4.View all objects" << std::endl
+		<< "5.Delete single pipe" << std::endl
+		<< "6.Delete single CS" << std::endl
+		<< "7.Edit single pipe" << std::endl
+		<< "8.Edit single CS" << std::endl
+		<< "9.Filter pipes" << std::endl
+		<< "10.Filter CS" << std::endl
+		<< "11.Topological sort network" << std::endl
+		<< "12.Shortest paths" << std::endl
+		<< "13.Max flow" << std::endl
+		<< "14.Save" << std::endl
+		<< "15.Load" << std::endl
+		<< "0.Exit" << std::endl;
 }

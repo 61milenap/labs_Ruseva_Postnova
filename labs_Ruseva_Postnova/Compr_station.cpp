@@ -4,8 +4,11 @@
 
 int Compr_station::max_id = 0;
 
+int Compr_station::get_num_workshops() const{
+	return num_workshops;
+}
 
-void Compr_station::up_num_run_ws(int num, int i) {
+void Compr_station::change_num_run_workstation(int num, int i) {
 	if (this->num_run_workshops + num > this->num_workshops) {
 		std::cout << "Addig more workhops than there are id" << i << std::endl;
 		this->num_run_workshops = this->num_workshops;
@@ -31,6 +34,7 @@ double Compr_station::used_per() const {
 	return result;
 }
 
+
 int Compr_station::get_id() const{
 	return max_id;
 }
@@ -44,6 +48,19 @@ std::string Compr_station::get_name() const {
 	return this->name;
 }
 
+int Compr_station::get_pipes_number() { 
+	return pipes_number; 
+}
+
+
+void Compr_station::up_pipes_number() { 
+	pipes_number++; 
+}
+
+void Compr_station::down_pipes_number() { 
+	pipes_number--; 
+}
+
 
 std::istream& operator >> (std::istream& in, Compr_station& Cs) {
 	std::cout << "Input the Name of CS: ";
@@ -54,6 +71,7 @@ std::istream& operator >> (std::istream& in, Compr_station& Cs) {
 	Cs.num_run_workshops = get_num_value(0, Cs.num_workshops + 1);
 	std::cout << "Input the efficiency of CS: ";
 	Cs.efficiency = get_num_value(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
+	
 	return in;
 }
 
@@ -72,10 +90,11 @@ std::ostream& operator << (std::ostream& out, const Compr_station& Cs) {
 
 std::ifstream& operator >> (std::ifstream& fin, Compr_station& Cs) {
 	std::string name;
-	fin >> Cs.max_id;
+	fin >> Cs.id;
+	Cs.max_id = std::max(Cs.id, Cs.max_id);
 	fin.ignore();
 	if (std::getline(fin, name, '\n')) Cs.name = name;
-	fin >> Cs.num_workshops >> Cs.num_run_workshops >> Cs.efficiency;
+	fin >> Cs.num_workshops >> Cs.num_run_workshops >> Cs.efficiency >> Cs.pipes_number;
 	return fin;
 }
 
@@ -83,6 +102,7 @@ std::ofstream& operator << (std::ofstream& fout, const Compr_station& Cs) {
 	fout << Cs.name << std::endl
 		<< Cs.num_workshops << ' '
 		<< Cs.num_run_workshops << ' '
-		<< Cs.efficiency << std::endl;
+		<< Cs.efficiency << ' '
+		<< Cs.pipes_number << std::endl;
 	return fout;
 }

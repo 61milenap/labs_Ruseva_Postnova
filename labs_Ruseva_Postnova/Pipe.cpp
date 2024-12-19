@@ -25,12 +25,20 @@ int Pipe::get_max_id() const {
 
 
 std::string Pipe::get_name() const {
-	return this->name;
+	return name;
 }
 
 
 bool Pipe::get_in_rep() const {
-	return this->in_repairing;
+	return in_repairing;
+}
+
+double Pipe::get_diam() const { 
+	return diameter; 
+}
+
+double Pipe::get_len() const { 
+	return len; 
 }
 
 

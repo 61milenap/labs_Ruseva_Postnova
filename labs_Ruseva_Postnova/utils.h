@@ -7,7 +7,7 @@
 #include <fstream>
 #include "Pipe.h"
 #include "Compr_station.h"
-#include <iostream>
+#include "Network.h"
 
 #define INPUT_LINE(in, str) getline(in>>std::ws, str); \
 						std::cerr << str << std::endl
@@ -48,107 +48,11 @@ T get_num_value(T least, T great) {
 	}
 }
 
+bool bfs(const std::vector<std::vector<double>>& r_graph, int s, int t, std::vector<int>& parent);
 
-template <typename T>
-bool show(std::unordered_map<int, T>& object) {
-	if (object.size() != 0) {
-		for (const auto& obj : object) {
-			std::cout << "Object id: " << obj.first << std::endl;
-			std::cout << obj.second;
-
-		}
-		return true;
-	}
-	else {
-		std::cout << "There are no objects" << std::endl;
-		return false;
-	}
-}
-
-
-template <typename T>
-bool show(std::unordered_set<int>& ids, std::unordered_map<int, T>& objects) {
-	if (ids.size() != 0) {
-		for (int i : ids) {
-			std::cout << "Object id: " << i << std::endl;
-			std::cout << objects[i];
-		}
-		return true;
-	}
-	else {
-		std::cout << "There are no such objets" << std::endl;
-		return false;
-	}
-}
-
-
-template <typename T>
-using pipe_filter = bool (*)(const Pipe& Cs, T params);
- 
-
-template <typename T>
-std::unordered_set<int> find_pipes_ids(std::unordered_map<int, Pipe>& pipes, pipe_filter<T> filter, T params) {
-	std::unordered_set<int> ids;
-
-	for (const auto& Pp : pipes) {
-		if (filter(Pp.second, params)) {
-			ids.insert(Pp.first);
-		}
-	}
-	return ids;
-}
-
-
-template <typename T>
-using compr_st_filter = bool (*)(const Compr_station& Cs, T params);
-
-
-template <typename T>
-std::unordered_set<int> find_compr_st_ids(std::unordered_map<int, Compr_station>& comp_stations, compr_st_filter<T> filter, T params) {
-	std::unordered_set<int> ids;
-
-	for (const auto& Cs : comp_stations) {
-		if (filter(Cs.second, params)) {
-			ids.insert(Cs.first);
-		}
-	}
-	return ids;
-}
-
-
-template <typename T>
-void del_objects(std::unordered_set<int>& ids, std::unordered_map<int, T>& objects) {
-	for (int i : ids) {
-		objects.erase(i);
-	}
-}
-
+double ford_fulkerson(std::vector<std::vector<double>>& graph, int s, int t);
 
 bool pipe_in_rep_input();
-
-bool save_data(std::string f_name, const std::unordered_map<int, Pipe>& pipes, const std::unordered_map<int, Compr_station>& compr_stations);
-
-bool read_data(std::string f_name, std::unordered_map<int, Pipe>& pipes, std::unordered_map<int, Compr_station>& compr_stations);
-
-bool del_pipe(int id, std::unordered_map<int, Pipe>& pipes);
-
-bool del_compr_station(int id, std::unordered_map<int, Compr_station>& compr_stations);
-
-bool edit_pipe(int id, std::unordered_map<int, Pipe>& pipes);
-
-bool edit_compr_station(int id, std::unordered_map<int, Compr_station>& compr_stations);
-
-std::unordered_set<int> get_new_ids(std::unordered_set<int> ids);
-
-int choose();
-
-int del_or_edit();
-
-void change_run_ws(int num, std::unordered_set<int>& ids, std::unordered_map<int, Compr_station>& compr_stataions);
-
-void filter_pipes(std::unordered_map<int, Pipe>& pipes);
-
-void filter_compr_stations(std::unordered_map<int, Compr_station>& compr_stations);
 
 bool check_pipe_name(const Pipe& Pp, std::string name);
 
@@ -157,3 +61,18 @@ bool check_pipe_in_rep(const Pipe& Pp, bool in_rep);
 bool check_compr_st_name(const Compr_station& Cs, std::string name);
 
 bool check_used_per(const Compr_station& Cs, double percent);
+
+void topological_sort_util(int v, std::unordered_set<int>& visited,
+	std::stack<int>& Stack,
+	std::unordered_map<int, std::unordered_set<int>>& graph,
+	std::unordered_set<int> gray);
+
+std::stack<int> topoligical_sort(std::unordered_map<int, std::unordered_set<int>>& graph);
+
+std::vector<double> dijkstra(std::vector<std::vector<double>> graph, int src);
+
+int min_dist_node(const std::unordered_set<int>& spt_set, const std::vector<double>& dist);
+
+double ford_fulkerson(std::vector<std::vector<std::vector<double>>> graph, int start, int end);
+
+int get_max_vertex(int k, std::vector<std::vector<std::vector<double>>>& graph, std::unordered_set<int>& visited);
