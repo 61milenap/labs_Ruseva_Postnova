@@ -29,15 +29,14 @@ void Network::del_pipes(const std::unordered_set<int>& ids) {
 
 void Network::del_compr_stations(const std::unordered_set<int>& ids) {
 	for (int i : ids) {
-		if (not_node(i))
-			compr_stations.erase(i);
+		compr_stations.erase(i);
 	}
 }
 
 
 bool Network::not_node(int id) {
-	for (auto edge : edges) {
-		if (id == edge.second.start_cs or id == edge.second.end_cs)
+	for (auto& edge : edges) {
+		if (id == edge.second.start_cs || id == edge.second.end_cs)
 			return false;
 	}
 	return true;
@@ -45,7 +44,7 @@ bool Network::not_node(int id) {
 
 
 bool Network::not_edge(int id) {
-	for (auto edge : edges) {
+	for (auto& edge : edges) {
 		if (id == edge.second.pipe)
 			return false;
 	}
@@ -54,19 +53,12 @@ bool Network::not_edge(int id) {
 
 
 bool Network::is_free_nodes() {
-
 	int free_number = 0;
-
 	for (auto& Cs : compr_stations) {
 		if (Cs.second.get_num_workshops() > Cs.second.get_pipes_number())
 			free_number++;
 	}
-
-	if (free_number >= 2)
-		return true;
-
-	else
-		return false;
+	return free_number >= 2;
 }
 
 
@@ -378,17 +370,19 @@ void Network::shortest_path() {
 
 
 bool Network::del_compr_station(int id) {
-
 	if (compr_stations.find(id) != compr_stations.end()) {
-		if (not_node(id)) {
-			compr_stations.erase(id);
-			return true;
-		}
-		else {
-			std::cout << "This CS is node" << std::endl;
-			return false;
+
+		for (auto it = edges.begin(); it != edges.end(); ) {
+			if (it->second.start_cs == id || it->second.end_cs == id) {
+				it = edges.erase(it);
+			}
+			else {
+				++it;
+			}
 		}
 
+		compr_stations.erase(id);
+		return true;
 	}
 	else {
 		std::cout << "There is no CS with that id" << std::endl;
@@ -486,7 +480,7 @@ void Network::filter_pipes() {
 void Network::filter_compr_stations() {
 	std::cout << "1.Filter by name" << std::endl
 		<< "2.Filter by \"percent of used worck stations >= \"" << std::endl;
-	int choice = get_num_value(1, 5);
+	int choice = get_num_value(1, 3);
 	std::unordered_set<int> ids;
 
 	if (choice == 1) {
@@ -494,7 +488,6 @@ void Network::filter_compr_stations() {
 		std::string name;
 		std::cout << "Input name of CS: ";
 		std::cin.ignore(10000, '\n');
-		std::getline(std::cin, name);
 		INPUT_LINE(std::cin, name);
 		ids = find_compr_st_ids(compr_stations, check_compr_st_name, name);
 	}
@@ -524,7 +517,11 @@ void Network::filter_compr_stations() {
 
 			choice = del_or_edit();
 
-			if (choice == 1) del_compr_stations(ids);
+			if (choice == 1) {
+				for (int id : ids) { 
+					del_compr_station(id);
+				}
+			}
 			if (choice == 2) {
 				std::cout << "Input number of workshops to add: ";
 				int num = get_num_value(-std::numeric_limits<int>::max(), std::numeric_limits<int>::max());
